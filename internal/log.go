@@ -1,11 +1,11 @@
-package log
+package internal
 
 import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-func New() *zap.SugaredLogger {
+func NewLogger() *zap.SugaredLogger {
 	logCfg := zap.NewProductionConfig()
 	logCfg.EncoderConfig.StacktraceKey = zapcore.OmitKey
 	logger, err := logCfg.Build()
