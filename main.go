@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/HamidSajjadi/ushort/api"
+	"github.com/HamidSajjadi/ushort/internal/log"
 	"github.com/HamidSajjadi/ushort/internal/repositories"
 	"github.com/gin-gonic/gin"
 	"os"
@@ -11,9 +12,10 @@ import (
 )
 
 func initialize() {
+	logger := log.New()
 	urlRepo := repositories.NewInMemoryRepo()
 	httpStub := gin.Default()
-
+	httpStub.Use(api.ErrorHandler(logger))
 	handler := api.New(httpStub, urlRepo)
 	handler.Run("localhost:9090")
 }

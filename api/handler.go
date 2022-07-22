@@ -42,7 +42,7 @@ func (h *Handler) Redirect(c *gin.Context) {
 	shortenedURL := c.Param("shortenedURL")
 	u, err := h.urlRepo.GetOne(shortenedURL)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Internal"})
+		abort(c, err)
 		return
 	}
 
@@ -56,18 +56,18 @@ func (h *Handler) CreateShortURL(c *gin.Context) {
 	}
 	var req ShortenURLReq
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Error": "BadRequest"})
+		abort(c, err)
 		return
 	}
 	source, err := parseURL(req.Source)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Internal"})
+		abort(c, err)
 		return
 	}
 	shortUrl := shortenURL(source)
 	_, err = h.urlRepo.Save(source, shortUrl)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Internal"})
+		abort(c, err)
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"url": shortUrl})
@@ -87,4 +87,9 @@ func parseURL(inp string) (string, error) {
 func shortenURL(url string) string {
 	hash := md5.Sum([]byte(url))
 	return hex.EncodeToString(hash[:])[:7]
+}
+
+func abort(c *gin.Context, err error) {
+	c.Error(err)
+	c.Abort()
 }
