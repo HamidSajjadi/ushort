@@ -3,7 +3,6 @@ package api
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"github.com/HamidSajjadi/ushort/internal/repositories"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -15,12 +14,13 @@ type Handler struct {
 	gin     *gin.Engine
 }
 
-func New(stub *gin.Engine, urlRepo repositories.URLRepository) *Handler {
+func New(httpStub *gin.Engine, urlRepo repositories.URLRepository) *Handler {
+
 	handler := &Handler{
 		urlRepo: urlRepo,
-		gin:     stub,
+		gin:     httpStub,
 	}
-	handler.initRouter()
+	handler.router()
 	return handler
 }
 
@@ -30,10 +30,9 @@ func (h *Handler) Run(address string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("listening at %s", address)
 }
 
-func (h *Handler) initRouter() {
+func (h *Handler) router() {
 	h.gin.POST("/shorten", h.CreateShortURL)
 	h.gin.GET("/:shortenedURL", h.Redirect)
 }

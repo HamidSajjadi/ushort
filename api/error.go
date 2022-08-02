@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/HamidSajjadi/ushort/internal"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -22,6 +21,10 @@ type HttpError struct {
 	code    int
 	message string
 	cause   error
+}
+
+type logger interface {
+	Errorf(msg string, args ...interface{})
 }
 
 func (he HttpError) Error() string {
@@ -58,6 +61,8 @@ func (he HttpError) Is(target error) bool {
 	return false
 }
 
+//createHttpErrorFromGenericError parses error and creates a HttpError with it
+// checks if the error implements Code(), Message() or Cause() first
 func createHttpErrorFromGenericError(err error) *HttpError {
 	httpErr := HttpError{}
 	if e, ok := err.(interface{ Code() int }); ok {
@@ -76,6 +81,8 @@ func createHttpErrorFromGenericError(err error) *HttpError {
 	return &httpErr
 }
 
+//toHttpError  check if error is of type HttpError or if can be mapped directly to it
+// if not uses createHttpErrorFromGenericError to create a HttpError from generic error
 func toHttpError(err error) *HttpError {
 	httpErr := HttpError{}
 	if u, ok := err.(HttpError); ok {
@@ -90,14 +97,14 @@ func toHttpError(err error) *HttpError {
 	return &httpErr
 }
 
-func ErrorHandler(logger *zap.SugaredLogger) gin.HandlerFunc {
+func ErrorHandler(log logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 		if len(c.Errors) > 0 {
 			e := c.Errors[0]
 			httpError := toHttpError(e.Err)
 
-			logger.Errorw("error in API",
+			log.Errorf("error in API, %s: %d | %s: %v | %s: %s",
 				"httpCode", httpError.Code(),
 				"cause", httpError.Cause(),
 				"message", httpError.Message(),

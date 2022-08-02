@@ -3,22 +3,25 @@ package main
 import (
 	"fmt"
 	"github.com/HamidSajjadi/ushort/api"
-	"github.com/HamidSajjadi/ushort/internal"
+	"github.com/HamidSajjadi/ushort/internal/config"
+	"github.com/HamidSajjadi/ushort/internal/http-engine"
+	"github.com/HamidSajjadi/ushort/internal/log"
 	"github.com/HamidSajjadi/ushort/internal/repositories"
-	"github.com/gin-gonic/gin"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
 func initialize() {
-	logger := internal.NewLogger()
+	conf := config.New("ushort", "./config.yml")
+	fmt.Printf("%+v", conf)
+	logger := log.New(conf.LogLevel)
 	urlRepo := repositories.NewInMemoryRepo()
-	httpStub := gin.Default()
-	httpStub.Use(api.ErrorHandler(logger))
+	httpStub := http_engine.New(conf.Deployment, logger)
 	handler := api.New(httpStub, urlRepo)
-	handler.Run("localhost:9090")
+	handler.Run(conf.HttpAddress)
 }
+
 func wait() {
 	signals := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
