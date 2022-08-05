@@ -31,7 +31,7 @@ suggestion to improve it.
 ## Checklist
 
 - [x]  ~~Add configuration management~~
-- [ ]  Add Redis as a Key-Value Database option
+- [x]  ~~Add Redis as a Key-Value Database option~~
 - [ ]  Create Dockerimage and docker-compose files
 - [ ]  Add PSQL as another Database option
 - [ ]  Deploy on AWS
