@@ -33,7 +33,7 @@ func (h *Handler) Run(address string) {
 }
 
 func (h *Handler) router() {
-	h.gin.POST("/shorten", h.CreateShortURL)
+	h.gin.POST("/api/shorten", h.CreateShortURL)
 	h.gin.GET("/:shortenedURL", h.Redirect)
 }
 
