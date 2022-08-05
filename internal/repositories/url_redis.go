@@ -12,10 +12,21 @@ type RedisURLRepo struct {
 	ctx context.Context
 }
 
+func NewRedisRepo(rdb *redis.Client) *RedisURLRepo {
+	ctx := context.Background()
+	return &RedisURLRepo{
+		rdb: rdb,
+		ctx: ctx,
+	}
+}
+
 func (r RedisURLRepo) GetOne(shortenedURL string) (*URLModel, error) {
 	val, err := r.rdb.Get(r.ctx, shortenedURL).Result()
-	if err == redis.Nil {
-		return nil, internal.NotFoundErr
+	if err != nil {
+		if err == redis.Nil {
+			err = internal.NotFoundErr
+		}
+		return nil, err
 	}
 	var url URLModel
 	err = json.Unmarshal([]byte(val), &url)
@@ -25,8 +36,9 @@ func (r RedisURLRepo) GetOne(shortenedURL string) (*URLModel, error) {
 	return &url, nil
 }
 
-//Save creates
+//Save if url does not exist already, creates a URLModel, json stringify it so that it can be saved into redis
 func (r RedisURLRepo) Save(sourceURL string, shortURL string) (url *URLModel, err error) {
+
 	url = &URLModel{
 		Source:    sourceURL,
 		Shortened: shortURL,

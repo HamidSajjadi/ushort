@@ -9,29 +9,37 @@ import (
 	"strings"
 )
 
+const (
+	DatabaseTypeRedis    = "redis"
+	DatabaseTypeInMemory = "in_memory"
+	DatabaseTypePSQL     = "psql"
+)
+
 type Config struct {
-	LogLevel    string `mapstructure:"log_level"`
-	HttpAddress string `mapstructure:"http_address"`
-	Deployment  string `mapstructure:"deployment"`
+	Redis        RedisSection `mapstructure:"redis"`
+	DatabaseType string       `mapstructure:"database_type"`
+	LogLevel     string       `mapstructure:"log_level"`
+	HttpAddress  string       `mapstructure:"http_address"`
+	Deployment   string       `mapstructure:"deployment"`
 
 	appName     string
 	defaultConf []byte
+}
+
+type RedisSection struct {
+	Address  string `mapstructure:"address"`
+	Password string `mapstructure:"password"`
 }
 
 const defaultConf = `
 log_level: "debug"
 http_port: ":8080"
 deployment: "production"
+database_type: "redis"  # in-memory, redis, or psql
+redis:
+    address: "localhost:6666"
+    password: ""
 `
-
-func getDefault() *Config {
-	return &Config{
-		LogLevel:    "debug",
-		HttpAddress: "localhost:8080",
-		Deployment:  "development",
-		appName:     "ushort",
-	}
-}
 
 func (c *Config) configureViper() {
 	viper.SetConfigType("yaml")

@@ -50,6 +50,7 @@ func (i InMemoryURLRepos) Save(sourceURL string, shortURL string) (url *URLModel
 		Views:     0,
 	}
 
+	i.maxID++
 	i.sourceToURL[sourceURL] = url
 	i.shortenedToURL[shortURL] = url
 	return url, nil

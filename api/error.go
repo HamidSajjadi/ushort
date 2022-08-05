@@ -90,7 +90,7 @@ func toHttpError(err error) *HttpError {
 	} else if u, ok = errorToHttpErrorMap[err]; ok {
 		httpErr = u
 	} else {
-		httpErr = *createHttpErrorFromGenericError(&httpErr)
+		httpErr = *createHttpErrorFromGenericError(err)
 	}
 	httpErr.cause = err
 

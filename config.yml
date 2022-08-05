@@ -1,3 +1,7 @@
 log_level: "debug"
 http_address: ":9090"
 deployment: "development"
+database_type: "redis"
+redis:
+  address: "localhost:6666"
+  password: ""

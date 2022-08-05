@@ -3,6 +3,7 @@ package api
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/HamidSajjadi/ushort/internal"
 	"github.com/HamidSajjadi/ushort/internal/repositories"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -63,8 +64,9 @@ func (h *Handler) CreateShortURL(c *gin.Context) {
 		abort(c, err)
 		return
 	}
+
 	shortUrl := shortenURL(source)
-	_, err = h.urlRepo.Save(source, shortUrl)
+	err = h.saveIfNotExists(source, shortUrl)
 	if err != nil {
 		abort(c, err)
 		return
@@ -72,6 +74,13 @@ func (h *Handler) CreateShortURL(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"url": shortUrl})
 }
 
+func (h *Handler) saveIfNotExists(sourceURL string, shortURL string) error {
+	_, err := h.urlRepo.GetOne(shortURL)
+	if err == internal.NotFoundErr {
+		_, err = h.urlRepo.Save(sourceURL, shortURL)
+	}
+	return err
+}
 func parseURL(inp string) (string, error) {
 	u, err := url.Parse(inp)
 	if err != nil {
