@@ -8,12 +8,10 @@ import (
 
 var urls = []*URLModel{
 	{
-		ID:        1,
 		Source:    "source-1",
 		Shortened: "shortened-1",
 		Views:     1,
 	}, {
-		ID:        2,
 		Source:    "source-2",
 		Shortened: "shortened-2",
 		Views:     0,
@@ -24,16 +22,13 @@ func initInMemoryURLRepos() *InMemoryURLRepos {
 
 	shortenedToURL := make(map[string]*URLModel)
 	sourceToURL := make(map[string]*URLModel)
-	idToURL := make(map[int32]*URLModel)
 	for _, url := range urls {
 		shortenedToURL[url.Shortened] = url
 		sourceToURL[url.Source] = url
-		idToURL[url.ID] = url
 	}
 	return &InMemoryURLRepos{
 		sourceToURL:    sourceToURL,
 		shortenedToURL: shortenedToURL,
-		idToURL:        idToURL,
 	}
 }
 
@@ -102,7 +97,6 @@ func TestInMemoryURLRepos_IncVisits(t *testing.T) {
 			url := repos.shortenedToURL[test.input]
 			assert.Equal(t, test.res, repos.shortenedToURL[test.input].Views)
 			assert.Equal(t, test.res, url.Views)
-			assert.Equal(t, test.res, repos.idToURL[url.ID].Views)
 			assert.Equal(t, test.res, repos.sourceToURL[url.Source].Views)
 		}
 	}

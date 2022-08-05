@@ -3,7 +3,6 @@ package repositories
 import "github.com/HamidSajjadi/ushort/internal"
 
 type URLModel struct {
-	ID        int32
 	Source    string
 	Shortened string
 	Views     int32
@@ -18,7 +17,6 @@ type URLRepository interface {
 type InMemoryURLRepos struct {
 	sourceToURL    map[string]*URLModel
 	shortenedToURL map[string]*URLModel
-	idToURL        map[int32]*URLModel
 	maxID          int32
 }
 
@@ -26,7 +24,6 @@ func NewInMemoryRepo() URLRepository {
 	return &InMemoryURLRepos{
 		sourceToURL:    make(map[string]*URLModel),
 		shortenedToURL: make(map[string]*URLModel),
-		idToURL:        make(map[int32]*URLModel),
 		maxID:          0,
 	}
 }
@@ -48,16 +45,13 @@ func (i InMemoryURLRepos) Save(sourceURL string, shortURL string) (url *URLModel
 	}
 
 	url = &URLModel{
-		ID:        i.maxID + 1,
 		Source:    sourceURL,
 		Shortened: shortURL,
 		Views:     0,
 	}
 
-	i.maxID++
 	i.sourceToURL[sourceURL] = url
 	i.shortenedToURL[shortURL] = url
-	i.idToURL[url.ID] = url
 	return url, nil
 }
 
